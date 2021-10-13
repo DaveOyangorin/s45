@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import './App.css';
 import AppNavbar from './components/AppNavbar';
 //pages
@@ -6,22 +6,52 @@ import Home from './pages/Home';
 import Courses from './pages/Courses'
 import Register from './pages/Register';
 import Login from './pages/Login';
+import Error from './pages/Error';
+//routing components
+import { BrowserRouter as Router } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 //Bootstrap
 import { Container } from 'react-bootstrap';
+//React Context
+import UserContext from './UserContext';
+
+/*
+BrowserRouter component will enable us to simulate page navigation by synchronizing the shown content and the shown URL in the web browser
+
+Switch component then declares with Route we can go to
+
+Route component will render components within the switch container based on the defined route
+
+exact property disables the partial matching for a route and makes sure that it only returns the route if the path is an exact match to the current url
+
+If exact and path is missing, the Route component will make it undefined route and will be loaded into a specified component
+
+*/
+
 
 function App() {
+
+  //add a state hook for user, 
+  //The getItem() method returns value of the specified Storage Object item
+  const [user, setUser] = useState({email: localStorage.getItem('email')})
+
+//Provider Component that allows consuming components to subscribe to context changes
   return (
-    <Fragment>
-      < AppNavbar />
-      <Container>
-        < Login />
-        <br/>
-      	< Register />
-        < Home />
-        < Courses />
-      </Container>
-    </Fragment>
+    <UserContext.Provider value={ {user, setUser} }>
+        <Router>
+          < AppNavbar />
+          <Container>
+            <Switch>
+              < Route exact path="/" component={Home} />
+              < Route exact path="/courses" component={Courses} />
+              < Route exact path="/register" component={Register} />
+              < Route exact path="/login" component={Login} />
+              <Route component={Error} />
+            </Switch>
+          </Container>
+        </Router>
+    </UserContext.Provider>
   );
 }
 

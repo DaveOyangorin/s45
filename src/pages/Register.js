@@ -28,7 +28,7 @@ export default function Register(){
 	}, [email, password1, password2])
 
 
-	function Login(e){
+	function registerUser(e){
 		e.preventDefault();
 		//to clear out the data in our input fields
 		setEmail('')
