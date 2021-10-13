@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
@@ -18,12 +18,27 @@ export default function CourseCard({courseProp}) {
 		//getter = stored initial(default value)
 		//setter = updated value
 	const [count, setCount] = useState(0)
+	const [seats, setSeats] = useState(10)
+	//state hook that indicates the button for enrollment
+	const [isOpen, setIsOpen] = useState(true);
 
-	console.log(useState(0))
+	useEffect(()=>{
+		if(seats === 0){
+			setIsOpen(false);
+		}
+	}, [seats])
+
+	//console.log(useState(0))
 
 	function enroll() {
-		setCount(count + 1);
-		console.log('Enrollees: ' + count);
+		if (seats > 0){
+			setCount(count + 1);
+			console.log('Enrollees: ' + count);
+			setSeats(seats - 1);
+			console.log('Seats: ' + seats);
+		} else {
+			alert("No more seats available")
+		}
 	}
 
 	return(
@@ -35,8 +50,13 @@ export default function CourseCard({courseProp}) {
 					<Card.Subtitle>Price:</Card.Subtitle>
 					<Card.Text>Php {price}</Card.Text>
 					<Card.Text>Enrollees: {count}</Card.Text>
-
+					<Card.Text>Seats: {seats}</Card.Text>
+					{isOpen ? 
 					<Button variant="primary" onClick={enroll}>Enroll</Button>
+					:
+					<Button variant="primary" disabled>Enroll</Button>
+					}
+
 				</Card.Body>
 			</Card>
 
@@ -55,3 +75,11 @@ CourseCard.propTypes = {
 		price: PropTypes.number.isRequired
 	})
 }
+
+/*
+mounting > updating > unmounting
+mounting > rendering > re rendering > unmounting
+
+login page (mounting)> typing data in inputs (rendering) (re rendering) > home (unmounting)
+
+*/

@@ -15,7 +15,7 @@ export default function Courses() {
 	//key={course.id} = to keep track the data of courses
 	const courses = courseData.map(course => {
 		return(
-			<CourseCard key={course.id} courseProp={course}/>
+			<CourseCard key = {course.id} courseProp={course}/>
 			)
 	})
 
