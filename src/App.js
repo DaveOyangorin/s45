@@ -5,6 +5,7 @@ import AppNavbar from './components/AppNavbar';
 import Home from './pages/Home';
 import Courses from './pages/Courses'
 import Register from './pages/Register';
+import Login from './pages/Login';
 
 //Bootstrap
 import { Container } from 'react-bootstrap';
@@ -14,6 +15,8 @@ function App() {
     <Fragment>
       < AppNavbar />
       <Container>
+        < Login />
+        <br/>
       	< Register />
         < Home />
         < Courses />

@@ -28,13 +28,15 @@ export default function Register(){
 	}, [email, password1, password2])
 
 
-	function registerUser(e){
+	function Login(e){
 		e.preventDefault();
 		//to clear out the data in our input fields
 		setEmail('')
 		setPassword1('')
 		setPassword2('')
 
+
+//swal effect
 		Swal.fire({
 			title: 'Yaaaaaaaaaaaaaay!!!!',
 			icon: 'success',
