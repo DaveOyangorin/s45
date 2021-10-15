@@ -1,21 +1,30 @@
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect ,useContext} from 'react';
 import { Form, Button } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-
+import { Redirect ,useHistory} from 'react-router-dom';
+import UserContext from '../UserContext';
 
 export default function Register(){
 
+	const history = useHistory();
+	const { user } = useContext(UserContext)
 	//State hooks to store the values of the input fields
 	const [email, setEmail] = useState('');
 	const [password1, setPassword1] = useState('');
 	const [password2, setPassword2] = useState('');
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [mobileNo, setMobileNo] = useState('');
 
 	const [isActive, setIsActive] = useState(false);
 
 	//Check if values are successfully binded
-	console.log(email)
+	/*console.log(email)
 	console.log(password1)
 	console.log(password2)
+	console.log(firstName) 
+	console.log(lastName)
+	console.log(mobileNo)*/
 
 	useEffect(()=>{
 		//Validation to enable submit button when all fields are populated and both passwords match
@@ -29,19 +38,76 @@ export default function Register(){
 
 
 	function registerUser(e){
+
 		e.preventDefault();
-		//to clear out the data in our input fields
-		setEmail('')
-		setPassword1('')
-		setPassword2('')
-
-
-//swal effect
-		Swal.fire({
-			title: 'Yaaaaaaaaaaaaaay!!!!',
-			icon: 'success',
-			text: 'You have successfuly registered!'
+		fetch('http://localhost:4000/users/checkEmail', {
+			method: 'POST',
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				email: email
+			})
 		})
+		.then(res => res.json())
+		.then(data => {
+			console.log(data);
+
+			if(data === true){
+				Swal.fire({
+					title: 'Oh no!',
+					icon: 'error',
+					text: 'Email already exists',
+				})
+
+			}else{
+				
+				fetch("http://localhost:4000/users/register", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					firstName: firstName,
+					lastName: lastName,
+					email: email,
+					mobileNo: mobileNo,
+					password: password1,
+				    
+
+				})
+			})
+
+			.then(res => res.json())
+			.then(data => {
+				console.log(data)
+				if(data === true){
+					Swal.fire({
+						title: "Yesss!",
+						icon: "success",
+						text: "successfully registered"
+					})
+					history.push("/login")
+				}else{
+					Swal.fire({
+						title: "Opppssss!!!",
+						icon: "error",
+						text: "Something went wrong. Check your Credentials"
+					})
+				}
+				
+			})
+				setFirstName("")
+				setLastName("")
+				setEmail("")
+				setMobileNo("")
+				setPassword1("")
+				setPassword2("")
+
+			}
+		})
+			
+
 	}
 
 	//Two way binding
@@ -50,9 +116,47 @@ export default function Register(){
 	//the data in the state has updated the view
 
 	return(
+
+		(user.accessToken !== null)?
+			<Redirect to="/" />
+			:
 		<Fragment>
 			<h1>Register</h1>
 			<Form onSubmit={(e) => registerUser(e)}>
+
+			<Form.Group>
+					<Form.Label>First Name:</Form.Label>
+					<Form.Control
+						type="First Name" 
+						placeholder="Enter Your FirstName"
+						value={firstName}
+						onChange={e => setFirstName(e.target.value)} 
+						required
+					/>
+				</Form.Group>
+
+				<Form.Group>
+					<Form.Label>Last Name:</Form.Label>
+					<Form.Control
+						type="last Name" 
+						placeholder="Enter Your lastName"
+						value={lastName}
+						onChange={e => setLastName(e.target.value)} 
+						required
+					/>
+				</Form.Group>
+
+				<Form.Group>
+					<Form.Label>Phone Number:</Form.Label>
+					<Form.Control
+						type="PhoneNumber" 
+						placeholder="Enter Phone Number"
+						value={mobileNo}
+						onChange={e => setMobileNo(e.target.value)} 
+						required
+					/>
+				</Form.Group>
+
 				<Form.Group>
 					<Form.Label>Email address:</Form.Label>
 					<Form.Control
@@ -66,6 +170,7 @@ export default function Register(){
 						We'll never share your email with anyone else.
 					</Form.Text>
 				</Form.Group>
+
 				<Form.Group>
 					<Form.Label>Password</Form.Label>
 					<Form.Control 

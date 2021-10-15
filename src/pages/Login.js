@@ -3,8 +3,11 @@ import { Form, Button } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 //React Context
 import UserContext from '../UserContext';
+//routing
+import { Redirect , useHistory} from 'react-router-dom'
 
 export default function Login(){
+	const history = useHistory();
 	//useContext is a react hook used to unwrap our context. It will return the data passed as values by a provider(UserContext.Provider component in App.js)
 	const { user, setUser } = useContext(UserContext)
 
@@ -26,23 +29,75 @@ export default function Login(){
 	function login(e){
 		e.preventDefault();
 
-		Swal.fire({
-			title: "Yaaaaay!",
-			icon: "success",
-			text: "Successfully Logged in!"
-		})
-		//local storage allows us to save data within our browsers as strings
-		//The setItem() method of the Storage interface, when passed a key name and value, will add that key to the given storage object, or update the key's value if its already exists
-		//setItem is used to store data in the localStorage as a string
-		//setItem('key', value)
-		localStorage.setItem('email', email);
-		setUser({ email: email })
+		fetch('http://localhost:4000/users/login', {method: 'POST',
+			headers: {
+				'Content-Type' : 'application/json'
+			},
+			body: JSON.stringify({
+				email: email,
+				password: password
+			})
 
-		setEmail('')
-		setPassword('')
+		})
+		.then(res => res.json())
+		.then(data => {
+			console.log(data)
+			if(data.accessToken !== undefined){
+				localStorage.setItem('accessToken', data.accessToken);
+				setUser({ accessToken: data.accessToken});
+
+				Swal.fire({
+				title: "Yaaaaay!",
+				icon: "Success",
+				text: "Thank You For Loggin in to Zuitt Bootcamp!"
+				})
+			//get user's details from our token
+				fetch('http://localhost:4000/users/details' ,{
+					headers:{
+						Authorization:`Bearer ${data.accessToken}`
+					}
+				})
+				.then(res => res.json())
+				.then(data => {
+					console.log(data)
+					if(data.isAdmin === true){
+						localStorage.setItem('email', data.email)
+						localStorage.setItem('isAdmin', data.isAdmin)
+						setUser({
+							email:data.email,
+							isAdmin: data.isAdmin
+						})
+						history.push('/courses')
+					}else{
+						//if not admin
+						history.push('/')
+					}
+
+				})
+
+			}else{
+				Swal.fire({
+				title: "Ooppps!",
+				icon: "error",
+				text: "Something Went Wrong.!"
+				})
+			}
+
+			setEmail('')
+			setPassword('')
+
+		})
+
+
 	}
 
+	//redicrect the user to the homepage when user login
+
 	return(
+		(user.accessToken !== null) ?
+			<Redirect to="/" />
+			:
+
 	<Fragment>
 		<h1>Login</h1>
 		<Form onSubmit={e => login(e)}>
